@@ -37,10 +37,15 @@ module.exports = {
                 
                 return links.map(link => {
                     if (link.querySelector(".a-price-whole")) {
+                        let avgElement = link.querySelector('.a-icon-star-small > span');
+                        let avg = 0;
+                        if (avgElement != null) {
+                            avg =  avgElement.textContent.match(/([0-9,.]+) .*/)[1];
+                        }
                         return {
                             title: link.querySelector(".a-size-medium.a-color-base.a-text-normal").textContent,
                             url: link.querySelector(".a-link-normal.a-text-normal").href,                
-                            avg: parseFloat(link.querySelector('.a-icon-star-small > span').textContent.match(/([0-9,.]+) .*/)[1]),
+                            avg: parseFloat(avg),
                             price: parseFloat(link.querySelector(".a-price-whole").textContent.replace(/[,.]/g, m => (m === ',' ? '.' : ''))),
                         };
                     }
@@ -61,7 +66,7 @@ module.exports = {
             await browser.close();
             return res.json({loaded : true});
         } catch (error) {
-            return res.json(error);
+            return res.json({error : true});
         }    
     } 
 };
