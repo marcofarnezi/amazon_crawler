@@ -48,13 +48,12 @@ module.exports = {
                     });
                   });
           
-                  products.forEach(element => { 
+                 products.forEach(async element => { 
                     if (element != null) {
                         await Product.create(element);
                     }
                   }); 
                   
-         
                   await page.waitForSelector('.a-normal');
                   await page.click('.a-normal');
                   await page.waitForSelector('.s-image');
