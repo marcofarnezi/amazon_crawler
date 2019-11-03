@@ -1,17 +1,20 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const db = require('./db/indes')
 dotenv.config();
+const PORT = process.env.PORT || 3333;
 
 const routes = require('./routes');
 const server = express();
 
-mongoose.connect(process.env.MONGO_SERVER,{
-    useNewUrlParser: true
-});
 
 server.use(cors());
 server.use(express.json());
 server.use(routes);
-server.listen(3333);
+db.connect()
+    .then(() => {
+        server.listen(PORT, () => {
+            console.log("Listening on port " + PORT);
+        });
+    })

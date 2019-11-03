@@ -7,13 +7,13 @@ module.exports = {
     async index(req, res) {
 
         var perPage = process.env.REGISTERS
-            , page = Math.max(0, req.param('page'))
+            , page = Math.max(0, (req.param('page') - 1))
 
         const products = await Product.find()
                                       .limit(perPage)
                                       .skip(perPage * page);
 
-        return res.json(products);
+        return res.status(200).json(products);
     },
 
     async store(req, res) {
@@ -64,9 +64,9 @@ module.exports = {
             }
 
             await browser.close();
-            return res.json({loaded : true});
+            return res.status(201).json({loaded : true});
         } catch (error) {
-            return res.json({error : true});
+            return res.status(501).json({error : true});
         }    
     } 
 };
