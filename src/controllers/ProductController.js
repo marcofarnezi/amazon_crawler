@@ -5,12 +5,9 @@ dotenv.config();
 
 module.exports = {
     async index(req, res) {
-        let page_req = 0;
-        if (req.query != undefined) {
-            page_req = Math.max(0, (req.query['page'] - 1));
-        }
+
         var perPage = process.env.REGISTERS
-            , page = page_req 
+            , page = Math.max(0, (req.query['page'] - 1))
 
         const products = await Product.find()
                                       .limit(perPage)
@@ -21,12 +18,7 @@ module.exports = {
     },
 
     async store(req, res) {
-        if (req.body != undefined) {
-            const { search } = req.body;
-        } else {
-            const search = 'ipad';
-        }
-
+        const { search } = req.body;
         const domain = "https://www.amazon.com";
         
         try {    
@@ -40,7 +32,7 @@ module.exports = {
             await page.type('#twotabsearchtextbox', search);
             await page.click('input.nav-input');
             await page.waitForSelector('.s-image');
-            for (let i = 0; i < 2; i++) {                
+            for (let i = 0; i < 3; i++) {                
                 const products = await page.evaluate(() => {
                 const links = Array.from(document.querySelectorAll('.s-result-item'));
                 
@@ -62,11 +54,12 @@ module.exports = {
                 });
                   
                 products.forEach(async element => { 
-                if (element != null) {
-                    await Product.create(element).catch(err => { res.status(400).send(err)});
-                }
+                    if (element != null) {
+                        console.log(element)
+                        await Product.create(element).catch(err => { res.status(400).send(err)});
+                    }
                 }); 
-                
+
                 await page.waitForSelector('.a-normal');
                 await page.click('.a-normal');
                 await page.waitForSelector('.s-image');
