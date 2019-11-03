@@ -5,19 +5,28 @@ dotenv.config();
 
 module.exports = {
     async index(req, res) {
-
+        let page_req = 0;
+        if (req.query != undefined) {
+            page_req = Math.max(0, (req.query['page'] - 1));
+        }
         var perPage = process.env.REGISTERS
-            , page = Math.max(0, (req.param('page') - 1))
+            , page = page_req 
 
         const products = await Product.find()
                                       .limit(perPage)
-                                      .skip(perPage * page);
-
+                                      .skip(perPage * page)
+                                      .catch(err => { res.status(501).send(err)});
+                                                                                    
         return res.status(200).json(products);
     },
 
     async store(req, res) {
-        const { search } = req.body;
+        if (req.body != undefined) {
+            const { search } = req.body;
+        } else {
+            const search = 'ipad';
+        }
+
         const domain = "https://www.amazon.com";
         
         try {    
@@ -54,7 +63,7 @@ module.exports = {
                   
                 products.forEach(async element => { 
                 if (element != null) {
-                    await Product.create(element);
+                    await Product.create(element).catch(err => { res.status(400).send(err)});
                 }
                 }); 
                 
@@ -66,7 +75,7 @@ module.exports = {
             await browser.close();
             return res.status(201).json({loaded : true});
         } catch (error) {
-            return res.status(501).json({error : true});
+            return res.status(501).send(error);
         }    
     } 
 };
